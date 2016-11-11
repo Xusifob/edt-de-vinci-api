@@ -59,10 +59,17 @@ function curl_request($request,$url,$data = []){
  * Login
  */
 function login(){
+
+    if(!isset($_POST['login']) || empty($_POST['login']))
+        response(400,['Identifiant Requis']);
+
+    if(!isset($_POST['pass']) || empty($_POST['pass']))
+        response(400,['Mot de passe Requis']);
+
     $result = curl_request('POST','https://www.leonard-de-vinci.net/include/php/ident.php',[
         'front_type' => 'default',
-
-
+        'login' => $_POST['login'],
+        'pass' => $_POST['pass'],
     ]);
 
     if(strpos($result,'Accès refusé') !== false){
