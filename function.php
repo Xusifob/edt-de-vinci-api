@@ -98,7 +98,8 @@ function get_calendar_link(){
  */
 function response($code,$data)
 {
-    header('Content-Type: application/json; charset=utf-8');
+    header("Access-Control-Allow-Origin: *");
+    header('Content-Type: application/json; charset=utf-8',false);
     switch ($code) {
         case 401 :
             header("HTTP/1.1 401 Unauthorized",false,$code);
