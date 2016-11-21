@@ -60,16 +60,19 @@ function curl_request($request,$url,$data = []){
  */
 function login(){
 
-    if(!isset($_POST['login']) || empty($_POST['login']))
+    $request_body = file_get_contents('php://input');
+    $data = json_decode($request_body,true);
+
+    if(!isset($data['login']) || empty($data['login']))
         response(400,['Identifiant Requis']);
 
-    if(!isset($_POST['pass']) || empty($_POST['pass']))
+    if(!isset($data['pass']) || empty($data['pass']))
         response(400,['Mot de passe Requis']);
 
     $result = curl_request('POST','https://www.leonard-de-vinci.net/include/php/ident.php',[
         'front_type' => 'default',
-        'login' => $_POST['login'],
-        'pass' => $_POST['pass'],
+        'login' => $data['login'],
+        'pass' => $data['pass'],
     ]);
 
     if(strpos($result,'Accès refusé') !== false){
@@ -81,13 +84,17 @@ function login(){
 function get_calendar_link(){
     $cal = curl_request('GET','https://www.leonard-de-vinci.net?my=edt');
 
-    $dom = new Dom();
+    try {
+        $dom = new Dom();
 
-    $dom->load($cal);
-    $content = $dom->find('.social-box',1);
+        $dom->load($cal);
+        $content = $dom->find('.social-box', 1);
 
-    $a = $content->find('a',0);
-    response(200,['id' => str_replace('/ical_student/','',$a->getAttribute('href'))]);
+        $a = $content->find('a', 0);
+        response(200, ['id' => str_replace('/ical_student/', '', $a->getAttribute('href'))]);
+    }catch (Exception $e){
+        response(500,['error' => $e->getMessage()]);
+    }
 
 }
 
@@ -95,24 +102,32 @@ function get_calendar_link(){
 /**
  * @param $code
  * @param $data
+ * @param $is_json
  */
-function response($code,$data)
-{
-    header("Access-Control-Allow-Origin: *");
-    header('Content-Type: application/json; charset=utf-8',false);
-    switch ($code) {
-        case 401 :
-            header("HTTP/1.1 401 Unauthorized",false,$code);
-            break;
-        case 200 :
-            header("HTTP/1.1 200 OK",false,$code);
-            break;
-        case 400 :
-            header('HTTP/1.0 401 Bad Request',false,$code);
-    }
+function response($code,$data, $is_json = true){
 
-    $data = array_merge($data, ['status' => $code]);
-    echo json_encode($data);
+    header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, PATCH, DELETE");
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept",false);
+   // switch ($code) {
+   //     case 401 :
+   //      //   header("HTTP/1.1 401 Unauthorized",false,$code);
+   //         break;
+   //     case 200 :
+   //      //   header('Content-Type: application/json; charset=utf-8',false);
+   //         header("HTTP/1.1 200 OK",false,$code);
+   //         break;
+   //     case 400 :
+   //         header('HTTP/1.0 401 Bad Request',false,$code);
+   //         break;
+   // }
+
+    if($is_json) {
+        $data = array_merge($data, ['status' => $code]);
+        echo json_encode($data);
+    }else{
+        echo $data;
+    }
     die();
 
 }
@@ -133,6 +148,6 @@ function get_calendar_data(){
         response(404,['error' => 'Calendrier non trouvé']);
     }
     else{
-        response(200,['calendrier' => $result]);
+        response(200,$result,false);
     }
 }
