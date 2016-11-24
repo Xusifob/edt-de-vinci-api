@@ -6,6 +6,7 @@ use PHPHtmlParser\Dom;
 define('DEVINCI_LOGIN_URL','https://www.leonard-de-vinci.net/include/php/ident.php');
 define('BCIT_LOGIN_URL','https://bss.bcit.ca/owa_prod/twbkwbis.P_ValLogin');
 define('BCIT_CALENDAR_URL','https://bss.bcit.ca/owa_prod/bwskfshd.P_CrseSchd?start_date_in=');
+define('DEVINCI_CALENDAR_LINK','https://www.leonard-de-vinci.net/ical_student/');
 
 
 /**
@@ -87,11 +88,9 @@ function login($echo = true){
 
             if (strpos($result, 'Accès refusé') !== false) {
                 response(401, ['error' => 'ERROR_ID_PASSWORD_INCORRECT']);
-
-
-                // Get the link
-                get_calendar_link();
             }
+            // Get the link
+            get_calendar_link();
             break;
         case 'bcit':
             $result = curl_request('POST', BCIT_LOGIN_URL, [
@@ -119,7 +118,6 @@ function login($echo = true){
 
 function get_calendar_link(){
     $cal = curl_request('GET','https://www.leonard-de-vinci.net?my=edt');
-
 
     try {
         $dom = new Dom();
@@ -179,7 +177,7 @@ function get_calendar_data(){
         response(400,['error' => 'ID_REQUIRED']);
     }
 
-    $result = curl_request('GET','https://www.leonard-de-vinci.net/ical_student/' . $_GET['id']);
+    $result = curl_request('GET',DEVINCI_CALENDAR_LINK . $_GET['id']);
 
     if(strpos($result,'Undefined') !== false){
         response(404,['error' => 'CALENDAR_NOT_FOUND']);
