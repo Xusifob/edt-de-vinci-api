@@ -64,10 +64,10 @@ function login(){
     $data = json_decode($request_body,true);
 
     if(!isset($data['login']) || empty($data['login']))
-        response(400,['Identifiant Requis']);
+        response(400,['ID_REQUIRED']);
 
     if(!isset($data['pass']) || empty($data['pass']))
-        response(400,['Mot de passe Requis']);
+        response(400,['PASSWORD_REQUIRED']);
 
     $result = curl_request('POST','https://www.leonard-de-vinci.net/include/php/ident.php',[
         'front_type' => 'default',
@@ -76,7 +76,7 @@ function login(){
     ]);
 
     if(strpos($result,'Accès refusé') !== false){
-        response(401,['error' => 'Identifiant ou Mot de passe incorrect']);
+        response(401,['error' => 'ERROR_ID_PASSWORD_INCORRECT']);
     }
 }
 
@@ -139,13 +139,13 @@ function response($code,$data, $is_json = true){
 function get_calendar_data(){
 
     if(!isset($_GET['id']) || empty($_GET['id'])){
-        response(400,['error' => 'Identifiant requis']);
+        response(400,['error' => 'ID_REQUIRED']);
     }
 
     $result = curl_request('GET','https://www.leonard-de-vinci.net/ical_student/' . $_GET['id']);
 
     if(strpos($result,'Undefined') !== false){
-        response(404,['error' => 'Calendrier non trouvé']);
+        response(404,['error' => 'CALENDAR_NOT_FOUND']);
     }
     else{
         response(200,$result,false);
