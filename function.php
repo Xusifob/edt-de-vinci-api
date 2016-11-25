@@ -294,6 +294,6 @@ function _getDate($time,$day,$date){
     $min = (int)($time[2] . $time[3]);
     $day = $day+($hour*3600)+($min*60);
 
-    return $day*1000;
+    return date('c', $day);
 
 }

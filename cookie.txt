@@ -4,5 +4,5 @@
 
 .leonard-de-vinci.net	TRUE	/	FALSE	0	alv	eeaucan2rhc6es6teqm7ha1a20
 bss.bcit.ca	FALSE	/owa_prod/	FALSE	0	TESTID	set
-.bcit.ca	TRUE	/	FALSE	0	SESSID	Rk9UVTJCMTc4MjQzMw==
+.bcit.ca	TRUE	/	FALSE	0	SESSID	TjdKSlZOMTc4MjQzMw==
 .bcit.ca	TRUE	/	FALSE	0	LAD	MjQtTk9WLTIwMTY=
