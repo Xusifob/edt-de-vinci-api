@@ -29,11 +29,13 @@ Login the user and return its id
 
 * **Data Params**
 
-  ```json
-  {
-  "login"" : "string",
-  "pass" : "string"
-  }```
+    ```json
+       {
+        "login" : "string",
+        "pass" : "string"
+        }
+    ```
+
 
 * **Success Response:**
 
@@ -50,19 +52,19 @@ Login the user and return its id
   * **Code:** 401 UNAUTHORIZED <br />
     **Content:** `{status, 401 error : "ERROR_ID_PASSWORD_INCORRECT" }`
 
-* **Sample Call:**
+    * **Sample Call:**
 
-   ```javascript
-    $.ajax({
-      url: "/login.php?school=bcit",
-      dataType: "json",
-      type : "POST",
-        data: { login: "John", pass: "Boston" }
-      success : function(r) {
-        console.log(r);
-      }
-    });
-  ```
+    ```javascript
+      $.ajax({
+        url: "/login.php?school=bcit",
+        dataType: "json",
+        type : "POST",
+          data: { login: "John", pass: "Boston" }
+        success : function(r) {
+          console.log(r);
+        }
+      });
+    ```
   
 **EVENTS**
 ------
@@ -86,11 +88,12 @@ Returns json data about a single user.
   * **Data Params**
   
     ```json
-    {
-    "login"" : "string",
-    "pass" : "string",
-    "id" : "string"
-    }```
+       {
+        "login" : "string",
+        "pass" : "string",
+        "id" : "string"
+        }
+    ```
   
   * **Success Response:**
   
@@ -114,7 +117,7 @@ Returns json data about a single user.
         url: "/events.php?school=bcit",
         dataType: "json",
         type : "POST",
-          data: { login: "John", pass: "Boston" }
+          data: { login: "John", pass: "Boston","id" : "4355464563465464GDF" }
         success : function(r) {
           console.log(r);
         }
