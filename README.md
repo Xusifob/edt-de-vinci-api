@@ -56,7 +56,7 @@ Login the user and return its id
 
     ```javascript
       $.ajax({
-        url: "/login.php?school=bcit",
+        url: "/V2/login.php?school=bcit",
         dataType: "json",
         type : "POST",
           data: { login: "John", pass: "Boston" }
@@ -68,7 +68,7 @@ Login the user and return its id
   
 **EVENTS**
 ------
-Returns json data about a single user.
+Returns the events of the calendar
   
   * **URL**
   
@@ -114,7 +114,7 @@ Returns json data about a single user.
   
     ```javascript
       $.ajax({
-        url: "/events.php?school=bcit",
+        url: "/V2/events.php?school=bcit",
         dataType: "json",
         type : "POST",
           data: { login: "John", pass: "Boston","id" : "4355464563465464GDF" }
