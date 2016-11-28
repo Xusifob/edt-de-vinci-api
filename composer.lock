@@ -4,9 +4,63 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c167619d31ad1bfffb3fb94758d9c20a",
-    "content-hash": "714f770c770ac174fbb91ad987caac68",
+    "hash": "4e9ecced6dd29225aefe67fa8b103ce0",
+    "content-hash": "1d0d3addb1a87bee9329deabd6ae177e",
     "packages": [
+        {
+            "name": "johngrogg/ics-parser",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/u01jmg3/ics-parser.git",
+                "reference": "2574be22e551abba0a47e4d695684c8e70911477"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/u01jmg3/ics-parser/zipball/2574be22e551abba0a47e4d695684c8e70911477",
+                "reference": "2574be22e551abba0a47e4d695684c8e70911477",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "squizlabs/php_codesniffer": "^2.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "ICal": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Martin Thoma",
+                    "email": "info@martin-thoma.de",
+                    "role": "Original Developer"
+                },
+                {
+                    "name": "John Grogg",
+                    "email": "john.grogg@gmail.com",
+                    "role": "Developer/Prior Owner"
+                },
+                {
+                    "name": "Jonathan Goode",
+                    "role": "Developer/Owner"
+                }
+            ],
+            "description": "ICS file parser",
+            "homepage": "https://github.com/u01jmg3/ics-parser",
+            "keywords": [
+                "ical",
+                "ics"
+            ],
+            "time": "2016-11-28 00:00:22"
+        },
         {
             "name": "paquettg/php-html-parser",
             "version": "1.7.0",
@@ -106,7 +160,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "johngrogg/ics-parser": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
