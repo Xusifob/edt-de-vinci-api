@@ -46,7 +46,7 @@ class Devinci
 
 
             /** @var $a \PHPHtmlParser\Dom\AbstractNode */
-            $a = $content->find('a', 0);
+            $a = $dom->find('a[href^="/ical_student/]',10);
             return str_replace('/ical_student/', '', $a->getAttribute('href'));
             //Utils::response(200, ['id' => str_replace('/ical_student/', '', $a->getAttribute('href'))]);
         }catch (Exception $e){

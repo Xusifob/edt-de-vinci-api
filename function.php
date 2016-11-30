@@ -31,6 +31,7 @@ function curl_request($request,$url,$data = []){
     curl_setopt ($ch, CURLOPT_FOLLOWLOCATION, 0);
     curl_setopt($ch, CURLOPT_URL,$url);
 
+
     if($request === 'POST') {
         curl_setopt($ch, CURLOPT_POST, 1);
 
@@ -39,13 +40,14 @@ function curl_request($request,$url,$data = []){
         $i = 0;
         if(is_array($data)) {
             foreach ($data as $key => $value) {
-                $postData .= "$key=$value";
+                $postData .= curl_escape($ch,$key) . '=' . curl_escape($ch,$value);
                 if ($i != count($data) - 1) {
                     $postData .= '&';
                 }
                 $i++;
             }
         }
+
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
     }
     ob_start();      // prevent any output
@@ -119,13 +121,14 @@ function login($echo = true){
 function get_calendar_link(){
     $cal = curl_request('GET','https://www.leonard-de-vinci.net?my=edt');
 
+
     try {
         $dom = new Dom();
 
         $dom->load($cal);
-        $content = $dom->find('.social-box', 1);
 
-        $a = $content->find('a', 0);
+        /** @var Dom\AbstractNode $a */
+        $a = $dom->find('a[href^="/ical_student/]',10);
         response(200, ['id' => str_replace('/ical_student/', '', $a->getAttribute('href'))]);
     }catch (Exception $e){
         response(500,['error' => $e->getMessage()]);

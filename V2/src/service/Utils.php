@@ -41,7 +41,7 @@ class Utils
             $i = 0;
             if(is_array($data)) {
                 foreach ($data as $key => $value) {
-                    $postData .= "$key=$value";
+                    $postData .= curl_escape($ch,$key) . '=' . curl_escape($ch,$value);
                     if ($i != count($data) - 1) {
                         $postData .= '&';
                     }
