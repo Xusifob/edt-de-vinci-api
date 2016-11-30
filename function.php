@@ -128,7 +128,7 @@ function get_calendar_link(){
         $dom->load($cal);
 
         /** @var Dom\AbstractNode $a */
-        $a = $dom->find('a[href^="/ical_student/]',10);
+        $a = $dom->find('a[href^="/ical_student/]',0);
         response(200, ['id' => str_replace('/ical_student/', '', $a->getAttribute('href'))]);
     }catch (Exception $e){
         response(500,['error' => $e->getMessage()]);
