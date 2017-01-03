@@ -8,6 +8,10 @@ define('BCIT_LOGIN_URL','https://bss.bcit.ca/owa_prod/twbkwbis.P_ValLogin');
 define('BCIT_CALENDAR_URL','https://bss.bcit.ca/owa_prod/bwskfshd.P_CrseSchd?start_date_in=');
 define('DEVINCI_CALENDAR_LINK','https://www.leonard-de-vinci.net/ical_student/');
 
+if(!isset($_GET['dev']) && !isset($_POST['dev'])) {
+    ini_set( 'error_reporting', 0 );
+}
+
 
 /**
  * @param $request
@@ -167,7 +171,6 @@ function response($code,$data, $is_json = true){
         echo $data;
     }
     die();
-
 }
 
 
@@ -206,72 +209,123 @@ function get_bcit_calendar_data($date){
 
     $dom = new Dom;
 
-    if(isset($table[0])){
-
-        $dom->load($table[0]);
-
-
-        $rows = $dom->find('tr');
-
-        $matches = [];
-        // Add an array to handle all rowspans
-        $rowspans = [];
-        /** @var Dom $row */
-        foreach($rows as $row){
-            $cols = $row->find('td');
-
-            // Handle the rowspan thing
-            foreach($rowspans as $key => $rowspan){
-                $rowspans[$key] = $rowspan-1;
-                if($rowspan == 0){
-                    unset($rowspans[$key]);
-                }
-            }
-
-            // 0 = Monday, 1 Tuesday...
-            $i = count($rowspans) ;
-
-            /** @var Dom $col */
-            foreach($cols as $col){
-
-                if($col->getAttribute('rowspan') != ''){
-
-                    array_push($rowspans,(int)$col->getAttribute('rowspan'));
-
-                    $matches[] = ['html' => $col->innerHTML,'day' => $i];
-                }
-                $i++;
-            }
-        }
+    if(isset($table[0])) {
 
         $classes = [];
 
-        foreach($matches as $class){
-            $html = preg_replace('/<a href=".+">/i','',$class['html']);
-            $html = preg_replace('/<\/a>/i','',$html);
+        $dom->load( $table[0] );
 
-            $class_broken = explode('<br />',$html);
-            $class_broken[] = $class['day'];
+        $rows = $dom->find( 'tr' );
 
-            $dates = explode('-',$class_broken[3]);
+        $columns = [ ];
+        $html    = [ ];
 
-            $class_beauty = [
-                'number' => $class_broken[0],
-                'title' => $class_broken[1],
-                'type' => $class_broken[2],
-                'start' => _getDate($dates[0],$class_broken[5],$date),
-                'end' => _getDate($dates[1],$class_broken[5],$date),
-                'location' => $class_broken[4],
-            ];
+        // Init the arrays
+        for ( $i = 0; $i <= 7; $i ++ ) {
+            $columns[] = 0;
+            $html[]    = '';
+        }
 
-            $classes[] = $class_beauty;
+        // Foreach row of the table
+        foreach ( $rows as $row ) {
+            $cols = $row->find( 'td' );
 
+            // Init the array
+            $html = [ ];
+            for ( $i = 0; $i <= 7; $i ++ ) {
+                $html[] = '';
+            }
+
+            $empty = array_keys( $columns, 0 );
+
+            // For all the columns
+            foreach ( $cols as $key => $col ) {
+
+                // Init
+                $rowSpan = 1;
+                $data    = '';
+
+                // Fill the data
+                if ( is_object( $col ) ) {
+                    $rowSpan = max( $rowSpan, (int) $col->getAttribute( 'rowspan' ) );
+                    $data    = $col->innerHTML;
+                }
+
+                $columns[ $empty[ $key ] ] = $rowSpan;
+                $html[ $empty[ $key ] ]    = $data;
+
+
+            }
+            // Remove 1 to each column
+            foreach ( $columns as $k => $value ) {
+                $columns[ $k ] = max( $value - 1, 0 );
+            }
+
+            foreach ( $html as $k => $data ) {
+
+                $pattern = '/<a href="[a-zA-Z\/._0-9;,=?&]+">/i';
+
+                if ( ! preg_match( $pattern, $data ) ) {
+                    continue;
+                }
+
+                $data = preg_replace( $pattern, '', $data );
+                $data = preg_replace( '/<\/a>/i', '', $data );
+                $data = preg_replace( '/<abbr>/i', '', $data );
+                $data = preg_replace( '/<\/abbr>/i', '', $data );
+
+
+
+                $data_array = explode( '<br />', $data );
+
+                $data_array[] = $k;
+
+                $data_ordered = [
+                    'number'   => '',
+                    'title'    => '',
+                    'type'     => '',
+                    'start'    => '',
+                    'end'      => '',
+                    'location' => '',
+                ];
+
+                if ( isset( $data_array[0] ) ) {
+                    $data_ordered['number'] = $data_array[0];
+                }
+
+                if ( isset( $data_array[1] ) ) {
+                    $data_ordered['title'] = $data_array[1];
+                }
+
+                if ( isset( $data_array[2] ) ) {
+                    $data_ordered['type'] = $data_array[2];
+                }
+
+                if ( isset( $data_array[4] ) ) {
+                    $data_ordered['location'] = $data_array[4];
+                }
+
+
+                if ( ! isset( $data_array[3] ) ) {
+
+                    continue;
+                } else {
+                    $dates = explode( '-', $data_array[3] );
+
+                    if ( isset( $data_array[5] ) ) {
+                        $data_ordered['start'] = _getDate( $dates[0], $data_array[5], $date );
+                        $data_ordered['end']   = _getDate( $dates[1], $data_array[5], $date );
+                    }
+                }
+
+
+                $classes[] = $data_ordered;
+            }
         }
 
         return $classes;
 
-    }
-    else {
+    }else{
         return [];
     }
 }
