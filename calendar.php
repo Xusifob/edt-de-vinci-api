@@ -7,11 +7,11 @@ if($_GET['school'] == 'bcit') {
     login(false);
 
     $date = isset($_POST['date']) ? $_POST['date'] : date('m/d/Y');
-    $number_of_week = isset($_POST['number_of_week']) ? $_POST['number_of_week'] : 2;
+    $number_of_week = isset($_POST['number_of_week']) ? $_POST['number_of_week'] : 5;
 
 
     $data = [];
-    $date = date('m/d/Y',strtotime('- 1 week',strtotime($date)));
+    $date = date('m/d/Y',strtotime('- 2 week',strtotime($date)));
     for($i=0;$i<$number_of_week;$i++){
         $date = date('m/d/Y',strtotime('+ 1 week',strtotime($date)));
         $data = array_merge($data,get_bcit_calendar_data($date));

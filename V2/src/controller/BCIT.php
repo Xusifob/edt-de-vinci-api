@@ -64,75 +64,128 @@ class BCIT
         preg_match('/<table  CLASS="datadisplaytable" SUMMARY="This layout table is used to present the weekly course schedule." WIDTH="80%">.+<\/table>/is',$response,$table);
 
         $dom = new \PHPHtmlParser\Dom();
+        if(isset($table[0])) {
 
-        if(isset($table[0])){
+            $classes = [];
 
-            $dom->load($table[0]);
+            $dom->load( $table[0] );
 
+            $rows = $dom->find( 'tr' );
 
-            $rows = $dom->find('tr');
+            $columns = [ ];
+            $html    = [ ];
 
-            $matches = [];
-            // Add an array to handle all rowspans
-            $rowspans = [];
-            /** @var \PHPHtmlParser\Dom $row */
-            foreach($rows as $row){
-                $cols = $row->find('td');
+            // Init the arrays
+            for ( $i = 0; $i <= 7; $i ++ ) {
+                $columns[] = 0;
+                $html[]    = '';
+            }
 
-                // Handle the rowspan thing
-                foreach($rowspans as $key => $rowspan){
-                    $rowspans[$key] = $rowspan-1;
-                    if($rowspan == 0){
-                        unset($rowspans[$key]);
-                    }
+            // Foreach row of the table
+            /** @var \PHPHtmlParser\Dom\AbstractNode $row */
+            foreach ( $rows as $row ) {
+                $cols = $row->find( 'td' );
+
+                // Init the array
+                $html = [ ];
+                for ( $i = 0; $i <= 7; $i ++ ) {
+                    $html[] = '';
                 }
 
-                // 0 = Monday, 1 Tuesday...
-                $i = count($rowspans) ;
+                $empty = array_keys( $columns, 0 );
 
-                foreach($cols as $col){
+                // For all the columns
+                /**
+                 * @var int $key
+                 * @var \PHPHtmlParser\Dom\AbstractNode $col
+                 */
+                foreach ( $cols as $key => $col ) {
 
-                    /** @var \PHPHtmlParser\Dom\AbstractNode $col */
-                    if($col->getAttribute('rowspan') != ''){
+                    // Init
+                    $rowSpan = 1;
+                    $data    = '';
 
-                        array_push($rowspans,(int)$col->getAttribute('rowspan'));
-
-                        $matches[] = ['html' => $col->innerHtml(),'day' => $i];
+                    // Fill the data
+                    if ( is_object( $col ) ) {
+                        $rowSpan = max( $rowSpan, (int) $col->getAttribute( 'rowspan' ) );
+                        $data    = $col->innerHTML;
                     }
-                    $i++;
+
+                    $columns[ $empty[ $key ] ] = $rowSpan;
+                    $html[ $empty[ $key ] ]    = $data;
+
+
+                }
+                // Remove 1 to each column
+                foreach ( $columns as $k => $value ) {
+                    $columns[ $k ] = max( $value - 1, 0 );
+                }
+
+                foreach ( $html as $k => $data ) {
+
+                    $pattern = '/<a href="[a-zA-Z\/._0-9;,=?&]+">/i';
+
+                    if ( ! preg_match( $pattern, $data ) ) {
+                        continue;
+                    }
+
+                    $data = preg_replace( $pattern, '', $data );
+                    $data = preg_replace( '/<\/a>/i', '', $data );
+                    $data = preg_replace( '/<abbr>/i', '', $data );
+                    $data = preg_replace( '/<\/abbr>/i', '', $data );
+
+
+
+                    $data_array = explode( '<br />', $data );
+
+                    $data_array[] = $k;
+
+                    $data_ordered = [
+                        'number'   => '',
+                        'title'    => '',
+                        'type'     => '',
+                        'start'    => '',
+                        'end'      => '',
+                        'location' => '',
+                    ];
+
+                    if ( isset( $data_array[0] ) ) {
+                        $data_ordered['number'] = $data_array[0];
+                    }
+
+                    if ( isset( $data_array[1] ) ) {
+                        $data_ordered['title'] = $data_array[1];
+                    }
+
+                    if ( isset( $data_array[2] ) ) {
+                        $data_ordered['type'] = $data_array[2];
+                    }
+
+                    if ( isset( $data_array[4] ) ) {
+                        $data_ordered['location'] = $data_array[4];
+                    }
+
+
+                    if ( ! isset( $data_array[3] ) ) {
+
+                        continue;
+                    } else {
+                        $dates = explode( '-', $data_array[3] );
+
+                        if ( isset( $data_array[5] ) ) {
+                            $data_ordered['start'] = _getDate( $dates[0], $data_array[5], $date );
+                            $data_ordered['end']   = _getDate( $dates[1], $data_array[5], $date );
+                        }
+                    }
+
+
+                    $classes[] = $data_ordered;
                 }
             }
 
-            $events = [];
+            return $classes;
 
-            foreach($matches as $class){
-                $html = preg_replace('/<a href=".+">/i','',$class['html']);
-                $html = preg_replace('/<\/a>/i','',$html);
-
-                $class_broken = explode('<br />',$html);
-                $class_broken[] = $class['day'];
-
-                $dates = explode('-',$class_broken[3]);
-
-                $event = new Event();
-
-                $event
-                    ->setTitle($class_broken[1])
-                    ->setDescription($class_broken[0])
-                    ->setStart(self::createDate($dates[0],$class_broken[5],$date))
-                    ->setEnd(self::createDate($dates[0],$class_broken[5],$date))
-                    ->setLocation($class_broken[4])
-                ;
-
-
-                $events[] = $event;
-
-            }
-
-            return $events;
-
-        }
-        else {
+        }else{
             return [];
         }
 
