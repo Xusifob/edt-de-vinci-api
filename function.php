@@ -78,11 +78,21 @@ function login($echo = true){
     if(!isset($data['login']) || empty($data['login']))
         response(400,['ID_REQUIRED']);
 
-    if(!isset($data['pass']) || empty($data['pass']))
-        response(400,['PASSWORD_REQUIRED']);
 
     if(!isset($data['school']) || empty($data['school']))
         response(400,['SCHOOL_REQUIRED']);
+
+    if(login_old_way($data)){
+        if(is_calendar_valid($data['login'])){
+            if($echo) {
+                response(200, ['id' => $data['login']]);
+            }
+        }
+    }
+
+    if((!isset($data['pass']) || empty($data['pass'])))
+        response(400,['PASSWORD_REQUIRED']);
+
 
     switch ($data['school']){
         case 'devinci':
@@ -113,12 +123,6 @@ function login($echo = true){
             break;
     }
 
-
-    if($data['school'] == 'devinci') {
-
-    }elseif($data['school'] == 'bcit'){
-
-    }
 }
 
 
@@ -176,21 +180,49 @@ function response($code,$data, $is_json = true){
 
 /**
  * Get the data from the calendar
- */
+ *
+ **/
 function get_calendar_data(){
 
     if(!isset($_GET['id']) || empty($_GET['id'])){
         response(400,['error' => 'ID_REQUIRED']);
     }
 
-    $result = curl_request('GET',DEVINCI_CALENDAR_LINK . $_GET['id']);
+    $valid = is_calendar_valid($_GET['id']);
 
-    if(strpos($result,'Undefined') !== false){
+    if($valid == false){
         response(404,['error' => 'CALENDAR_NOT_FOUND']);
     }
     else{
-        response(200,$result,false);
+        response(200,$valid,false);
     }
+}
+
+
+/**
+ *
+ * Return if the calendar is valid
+ *
+ * @param $id
+ *
+ * @return bool|string
+ */
+function is_calendar_valid($id)
+{
+    $result = curl_request('GET',DEVINCI_CALENDAR_LINK . $id);
+
+    if(strpos($result,'Undefined') !== false){
+        return false;
+    }else{
+        return $result;
+    }
+
+}
+
+
+function login_old_way($data)
+{
+    return isset($data['login']) && $data['school'] == 'devinci' && $data['oldWay'] == true;
 }
 
 
